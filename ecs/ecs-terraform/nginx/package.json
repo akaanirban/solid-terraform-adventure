@@ -1,0 +1,6 @@
+{
+    "scripts": {
+        "build": "docker build -t anirbandas/nginx-ecs-terraform:latest .",
+        "push": "docker push anirbandas/nginx-ecs-terraform:latest"
+    }
+}

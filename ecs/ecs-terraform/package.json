@@ -1,0 +1,14 @@
+{
+    "scripts": {
+        "build": "npm run build-app && npm run build-nginx",
+        "build-app": "cd ../app && npm run build",
+        "build-nginx": "cd nginx && npm run build",
+        "ecr-create-repos": "npm run ecr-tag-app && npm run ecr-tag-nginx",
+        "ecr-tag-repos": "npm run ecr-tag-app && npm run ecr-tag-nginx",
+        "ecr-tag-app": "cd ../app && npm run tag",
+        "ecr-tag-nginx": "cd nginx && npm run tag",
+        "ecr-push-repos": "npm run ecr-push-app && npm run ecr-push-nginx",
+        "ecr-push-app": "cd ../app && npm run push",
+        "ecr-push-nginx": "cd nginx && npm run push"
+    }
+}

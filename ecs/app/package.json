@@ -1,0 +1,6 @@
+{
+    "scripts": {
+        "build": "docker build -t anirbandas/app:latest .",
+        "push": "docker push anirbandas/app:latest"
+    }
+}
