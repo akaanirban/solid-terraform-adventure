@@ -1,0 +1,7 @@
+user: "ubuntu"
+ansible_python_interpreter: /usr/bin/python3
+# we keep dirs without appended slashes by convention
+home: "/home/{{ user }}"
+downloads_dir: "{{ home }}/Downloads"
+torch_path: "{{ downloads_dir }}/{{ torch_fn }}"
+

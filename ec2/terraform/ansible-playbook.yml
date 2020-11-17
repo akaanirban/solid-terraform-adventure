@@ -1,0 +1,80 @@
+# - name: Setup environment for experiment
+#   hosts: aws_ec2
+#   remote_user: ubuntu
+
+#   tasks:
+#     - name: Setup old pytorch
+#       copy:
+#         src: mllsgd.requirements.txt
+#         dest: /home/ubuntu/requirements.txt
+
+#     - name: Install experiment python dependencies
+#       pip:
+#         virtualenv_python: "python{{python.version}}"
+#         virtualenv: "{{ python.virtualenv }}"
+#         requirements: /home/ubuntu/requirements.txt
+
+- name: Setup miniconda3 with PyTorch and Numpy etc.
+  hosts: MLLSGD-workers
+  become: no
+  user: "{{ user }}"
+  gather_facts: yes
+  tags: miniconda3
+  vars_files:
+    - vars.yml
+
+  tasks:
+    - name: Creates directory
+      file:
+        path: "{{home}}/Downloads"
+        state: directory
+        
+    - name: ensure unzip, git and tmux are installed
+      apt:
+        name: 
+          - unzip
+          - tmux
+          - git
+        state: present
+        update_cache: true
+      become: true
+      
+    # this will only download if not already there
+    - name: Download miniconda3 installer
+      get_url:
+        url: https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+        dest: "{{ home }}/Downloads/Miniconda3-latest-Linux-x86_64.sh"
+
+    # this will only run if miniconda3 is not already there yet (creates: ...)
+    - name: Install miniconda3
+      command: "/bin/bash {{ home }}/Downloads/Miniconda3-latest-Linux-x86_64.sh -b"
+      args:
+        creates: "{{ home }}/miniconda3"
+
+    - name: Add conda config to .bashrc
+      lineinfile:
+        path: "{{ home }}/.bashrc"
+        line: ". ~/miniconda3/etc/profile.d/conda.sh"
+
+    - name: Conda install some scientific stuff
+      command: "{{ home }}/miniconda3/condabin/conda install -y scipy==1.4.1 numpy==1.18.5 mkl scikit-learn pandas pytz"
+
+    - name: Pip install some scientific stuff
+      command: "{{ home }}/miniconda3/bin/python -m pip install python-mnist emnist pytz"
+
+    - name: Install PyTorch 1.4.0 and friends using conda into pt environment
+      command: "{{ home }}/miniconda3/condabin/conda install -y pytorch==1.4.0 torchvision==0.5.0 cpuonly -c pytorch"
+
+    # install pytorch==1.4.0 torchvision==0.5.0 cudatoolkit=10.1 -c pytorch
+    - name: Extract foo.tgz into home directory
+      unarchive:
+        src: COS_LUX.zip
+        dest: "{{ home }}"
+
+# - name: SCP this current project folder into all other remote hosts
+#   hosts: fedplay-workers
+#   gather_facts: yes
+#   tasks:
+#     - synchronize: # use synchronize instead of copy as it is faster https://stackoverflow.com/a/27995384/8853476
+#         src: /home/anirban/Softwares/GitHub/fedPlay
+#         dest: /home/ubuntu/
